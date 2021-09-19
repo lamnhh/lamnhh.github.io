@@ -1,6 +1,14 @@
 // Starter Blog Template
 // https://wowchemy.com/hugo-themes/
 
+body.dark {
+  background:#282a36;
+}
+
+.dark .navbar {
+  background: #212545;
+}
+
 .home-section {
   padding: 3em 0 3em 0;
 }
@@ -83,4 +91,8 @@ ul.network-icon .big-icon {
 
 .wg-about .portrait-title h3 {
   font-size: .8rem
+}
+
+.dark pre, .dark code {
+  background-color: #0a0e22;
 }
