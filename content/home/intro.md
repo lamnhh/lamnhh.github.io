@@ -13,11 +13,5 @@ subtitle: 'For [Wowchemy Website Builder](https://wowchemy.com/)'
 
 author: admin
 
-design:
-  background:
-    color: '#090a0b'
-    text_color_light: true
-    video:
-      path: intro.webm
 #  css_class: fullscreen
 ---

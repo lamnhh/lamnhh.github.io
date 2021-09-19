@@ -1,20 +1,20 @@
 ---
 # Display name
-title: Alice Bighetti (吳恩達)
+title: Lam Nguyen
 
 # Is this the primary user of the site?
 superuser: true
 
 # Role/position
-role: Professor of Artificial Intelligence
+role: Average CTF enjoyer (crypto/web)
 
 # Organizations/Affiliations
-organizations:
-- name: Stanford University
-  url: ""
+# organizations:
+# - name: Stanford University
+#   url: ""
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests include distributed robotics, mobile computing and programmable matter.
+bio: I play CTF under the username <a href="https://www.youtube.com/watch?v=wwhUGjnpRNw"><strong>mugi</strong></a>
 
 #interests:
 #- Artificial Intelligence
@@ -41,12 +41,12 @@ social:
 - icon: envelope
   icon_pack: fas
   link: 'about/#contact'  # For a direct email link, use "mailto:test@example.org".
+- icon: github
+  icon_pack: fab
+  link: https://github.com/lamnhh
 - icon: twitter
   icon_pack: fab
-  link: https://twitter.com/wowchemy
-- icon: instagram
-  icon_pack: fab
-  link: https://instagram.com/geocushen
+  link: https://twitter.com/lamnhh
 
 # Uncomment below for Github link
 #- icon: github
@@ -63,6 +63,4 @@ social:
 #email: ""
 ---
 
-Alice Bighetti is a professor of artificial intelligence at the Stanford AI Lab. Her research interests include distributed robotics, mobile computing and programmable matter. She leads the Robotic Neurobiology group, which develops self-reconfiguring robots, systems of self-organizing robots, and mobile sensor networks.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed neque elit, tristique placerat feugiat ac, facilisis vitae arcu. Proin eget egestas augue. Praesent ut sem nec arcu pellentesque aliquet. Duis dapibus diam vel metus tempus vulputate.
+~~General Kenobi~~ A wannabe hacker lmao. Currently enjoying CTFs a lot, but have no idea how/where to start with real-world stuff.
