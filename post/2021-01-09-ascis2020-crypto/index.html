@@ -1,0 +1,385 @@
+<!doctype html><html lang=en-us>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Wowchemy 5.3.0 for Hugo">
+<meta name=author content="Lam Nguyen">
+<meta name=description content="This is me upsolving the challenges 1 month after the contest. All patches are unavailable to download, so all I discuss here is how to attack the original challenges (with no patches).">
+<link rel=alternate hreflang=en-us href=https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/>
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<meta name=theme-color content="#2962ff">
+<script src=/js/mathjax-config.js></script>
+<link rel=stylesheet href=/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/monokai-sublime.min.css crossorigin=anonymous title=hl-light media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/monokai-sublime.min.css crossorigin=anonymous title=hl-dark media=print onload="this.media='all'" disabled>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script>
+<link rel=preload as=style href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Mono&family=Roboto:wght@400;700&display=swap">
+<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" media=print onload="this.media='all'">
+<link rel=stylesheet href=/css/wowchemy.d837572e9d2d5c4d185f6f8e9fbae335.css>
+<link rel=manifest href=/manifest.webmanifest>
+<link rel=icon type=image/png href=/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_180x180_fill_lanczos_center_3.png>
+<link rel=canonical href=https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/>
+<meta property="twitter:card" content="summary">
+<meta property="twitter:site" content="@wowchemy">
+<meta property="twitter:creator" content="@wowchemy">
+<meta property="og:site_name" content="Lam Nguyen's blog">
+<meta property="og:url" content="https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/">
+<meta property="og:title" content="ASCIS 2020 - Crypto writeups | Lam Nguyen's blog">
+<meta property="og:description" content="This is me upsolving the challenges 1 month after the contest. All patches are unavailable to download, so all I discuss here is how to attack the original challenges (with no patches)."><meta property="og:image" content="https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png">
+<meta property="twitter:image" content="https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="en-us">
+<meta property="article:published_time" content="2021-01-09T00:00:00+00:00">
+<meta property="article:modified_time" content="2021-01-09T00:00:00+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/"},"headline":"ASCIS 2020 - Crypto writeups","datePublished":"2021-01-09T00:00:00Z","dateModified":"2021-01-09T00:00:00Z","author":{"@type":"Person","name":"Lam Nguyen"},"publisher":{"@type":"Organization","name":"Lam Nguyen's blog","logo":{"@type":"ImageObject","url":"https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_192x192_fill_lanczos_center_3.png"}},"description":"This is me upsolving the challenges 1 month after the contest. All patches are unavailable to download, so all I discuss here is how to attack the original challenges (with no patches)."}</script>
+<title>ASCIS 2020 - Crypto writeups | Lam Nguyen's blog</title>
+</head>
+<body id=top data-spy=scroll data-offset=70 data-target=#TableOfContents class=page-wrapper data-wc-page-id=76f11bf6053de94cf6cc1c37a9f191cb>
+<script src=/js/wowchemy-init.min.8988fb2a4bba758785868cfcb5244555.js></script>
+<aside class=search-modal id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Search</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=# aria-label=Close><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search class=form-control aria-label=Search...>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<div class=page-header>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container-xl>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar-content aria-expanded=false aria-label="Toggle navigation">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-collapse main-menu-item collapse justify-content-center" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class=nav-link href=/><span>Home</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/about/><span>About</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+<li class=nav-item>
+<a class="nav-link js-search" href=# aria-label=Search><i class="fas fa-search" aria-hidden=true></i></a>
+</li>
+<li class="nav-item dropdown theme-dropdown">
+<a href=# class=nav-link data-toggle=dropdown aria-haspopup=true aria-label="Display preferences">
+<i class="fas fa-moon" aria-hidden=true></i>
+</a>
+<div class=dropdown-menu>
+<a href=# class="dropdown-item js-set-theme-light">
+<span>Light</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-dark">
+<span>Dark</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-auto">
+<span>Automatic</span>
+</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+</div>
+<div class=page-body>
+<article class=article>
+<div class="article-container pt-3">
+<h1>ASCIS 2020 - Crypto writeups</h1>
+<p class=page-subtitle>Writeups for Crypto01 daemon</p>
+<div class=article-metadata>
+<span class=article-date>
+Jan 9, 2021
+</span>
+<span class=middot-divider></span>
+<span class=article-reading-time>
+5 min read
+</span>
+</div>
+</div>
+<div class=article-container>
+<div class=article-style>
+<p>This is me upsolving the challenges 1 month after the contest. All patches are unavailable to download, so all I discuss here is how to attack the original challenges (with no patches).</p>
+<p>The challenge can be summarised as:</p>
+<ul>
+<li>Given an oracle $E$ which we can query: give it a string $s$ and it will return $E(s)$.</li>
+<li>The target is to forge $E(target)$ where</li>
+</ul>
+<p>$$target = \text{0x2020202020202020202020202020202020202020202020202020202020202020}$$</p>
+<p>(32 bytes 0x20). The catch is that we cannot query for $E(target)$ directly.</p>
+<p>There are 3 oracles we need to attack:</p>
+<ul>
+<li>AES-CBC 256</li>
+<li>AES-GCM 256</li>
+<li>RSA on Gaussian integers</li>
+</ul>
+<h1 id=aes-cbc-256>AES-CBC 256</h1>
+<p>
+<figure id=figure-cbc-encryption>
+<div class="d-flex justify-content-center">
+<div class=w-100><img src=https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/CBC_encryption.svg/1920px-CBC_encryption.svg.png alt="CBC Encryption" loading=lazy data-zoomable></div>
+</div><figcaption>
+CBC Encryption
+</figcaption></figure>
+</p>
+<p>The oracle randomises its IV, requires the plaintext to be exactly 32 bytes long (2 blocks), which means it will feed into the cipher 3 blocks of data (because of padding). We have the exact flowchart as the image above.</p>
+<p>The solution is:</p>
+<ul>
+<li>First, query $E(00 * 16 + 20 * 16)$, we get back $IV$ and $CT$.</li>
+<li>Second, compute $IV' = IV \oplus (20 * 16)$.</li>
+<li>Submit $IV' + CT$ and get the flag.</li>
+</ul>
+<p>Explanation: call the first block of plaintext $PT$. For our plaintext, we have $PT = 00 * 16$.</p>
+<p>We can see that:</p>
+<p>$PT \oplus IV = (PT \oplus (20 * 16)) \oplus (IV \oplus (20 * 16)) = (target PT) \oplus IV'$</p>
+<p>What this means is that using target PT and IV', we have the same first block of ciphertext as above. The rest blocks will subsequently be the same. Now we have the full ciphertext for $target$.</p>
+<h1 id=aes-gcm-256>AES-GCM 256</h1>
+<p>
+<figure id=figure-gcm-encryption>
+<div class="d-flex justify-content-center">
+<div class=w-100><img src=https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/GCM-Galois_Counter_Mode_with_IV.svg/800px-GCM-Galois_Counter_Mode_with_IV.svg.png alt="GCM encryption" loading=lazy data-zoomable></div>
+</div><figcaption>
+GCM encryption
+</figcaption></figure>
+</p>
+<p>GCM summarised: first encrypt the plaintext using CTR mode, then use ciphertext blocks as coefficients for a polynomial, compute it on a key-dependent point H, encrypt it, then return as an authentication tag.</p>
+<p>This challenge is quite different from the other two. First, we look at the secret key initialisation:</p>
+<pre><code class=language-python>with open(&quot;/opt/flag/secret&quot;, &quot;rb&quot;) as f:
+    tp = Aes256GcmTP(f.read())
+</code></pre>
+<p>This means the secret key is the same over all connections.</p>
+<p>Second, nonce initialisation:</p>
+<pre><code class=language-python># this is the best way to avoid nonce reuse
+now = int(time())
+if now &lt;= self.last_timestamp:
+    now = self.last_timestamp + 1
+self.last_timestamp = now
+nonce = now.to_bytes(12, &quot;big&quot;)
+</code></pre>
+<p>This obviously can be bypassed using race condition.</p>
+<p>Now we have an GCM oracle that uses same secret key and same nonce for all queries. That means the encryption is a stream cipher with same key $\Rightarrow$ we can forge ciphertext however we like.</p>
+<p>To forge the authentication tag, we need to look more closely at the math. The tag is computed as follow:</p>
+<ul>
+<li>Compute $H = E(0^{128})$.</li>
+<li>Compute $pad = E(nonce | 0^{31} | 1)$.</li>
+<li>Call $c_1, c_2$ the two blocks of the ciphertext.</li>
+<li>The tag is: $c_1 \cdot H^3 + c_2 \cdot H^2 + (len(A) | len(C)) \cdot H + pad$</li>
+</ul>
+<p>Here we have $len(A) = 0, len(C) = 32 * 8 = 256$. All computation is on $GF(2^{128})$. This is a field, which means it has distributivity, a.k.a. $A(B+C) = AB + AC$. That means, consider 3 same-length ciphertext $c^1, c^2, c^3$, we have:</p>
+<p>$tag(c^1) + tag(c^2) + tag(c^3)$
+$= (c^1_1 + c^2_1 + c^3_1) \cdot H^3 + (c^1_2 + c^2_2 + c^3_2) \cdot H_2 + (len(A) | len(C)) \cdot H + pad$
+$= tag(c^1 + c^2 + c^3) $</p>
+<p><em>(reminder that addition in $GF(2^n)$ is the XOR operation)</em></p>
+<p>Define $et = E(target)$ (ciphertext for $target$). If we can forge these 3 values:</p>
+<ul>
+<li><code>c1 = et[:16] + 00 * 16</code></li>
+<li><code>c2 = 00 * 16 + et[16:]</code></li>
+<li><code>c3 = 00 * 32</code></li>
+</ul>
+<p>then we have $tag(c^1) + tag(c^2) + tag(c^3) = tag(c^1 + c^2 + c^3) = tag(E(target))$</p>
+<p>To construct $c^1, c^2, c^3$ we do as follow:</p>
+<ul>
+<li>Define $p = random(32 bytes)$</li>
+<li>Query $E(p)$.</li>
+<li>Compute $E(target) = E(p) \oplus p \oplus target$.</li>
+<li>Compute $p^1 = target \oplus (E(target)[:16] | (00 * 16))$</li>
+<li>Compute $p^2 = target \oplus ((00 * 16) | E(target)[16:])$</li>
+<li>Compute $p^3 = target \oplus E(target)$</li>
+</ul>
+<p>Then it&rsquo;s easy to see that $E(p^i) = c^i$.</p>
+<h1 id=rsa-with-gaussian-integers>RSA with Gaussian integers</h1>
+<p>The string we submit is split into 2 halves, each converted to an integer, combined together into a Complex number. This complex number is then RSA-ed, concatenated, and returned to us.</p>
+<p>We do not know $N$ and $e$.</p>
+<p>The multiplication function is this:</p>
+<pre><code class=language-python>def complex_mult(c1, c2, modulus):
+    return Complex(
+        (c1.re * c2.re - c1.im * c2.im) % modulus,  # real part
+        (c1.re * c2.im + c1.im * c2.re) % modulus,  # image part
+    )
+</code></pre>
+<p>We define $norm(a) = a.re^2 + a.im^2$.</p>
+<p>It&rsquo;s easy to see that $norm$ is multiplicative. In other word: $norm(c1 \cdot c2) = norm(c1) \cdot norm(c2)$. This means that we have:</p>
+<p>$norm(s)^e \equiv norm(s^e) \equiv norm(E(s))\ (mod\ N)$</p>
+<p>which is regular RSA.</p>
+<p>To find $N$, we query 3 values: $E(2), E(4), E(8)$. We can see that:</p>
+<p>\begin{equation}
+\begin{aligned}
+E(2) \cdot E(2)
+&\equiv 2^e \cdot 2^e \\<br>
+&\equiv 4^e \\<br>
+&\equiv E(4) \pmod N \\<br>
+\Leftrightarrow E(2)^2 - E(4) &\equiv 0\ \pmod N \\<br>
+\\<br>
+E(2) \cdot E(2) \cdot E(2)
+&\equiv 2^e \cdot 2^e \cdot 2^e \\<br>
+&\equiv 8^e \\<br>
+&\equiv E(8) \pmod N \\<br>
+\Leftrightarrow E(2)^3 - E(8) &\equiv 0 \pmod N
+\end{aligned}
+\end{equation}</p>
+<p>From that, we have:</p>
+<p>$$N \mid GCD(E(2)^2 - E(4), E(2)^3 - E(8))$$</p>
+<p>Define $g = GCD(E(2)^2 - E(4), E(2)^3 - E(8))$. By experiment, we can see that most prime factors of $g$ (except for $p, q$) is small (no greater than 1000). We now have $N$. Then I spent the next 12 hours struggling to compute $e$, only to realise that I don&rsquo;t need it :(</p>
+<p>It&rsquo;s easy to see that:</p>
+<p>\begin{equation}
+\begin{aligned}
+E(2target) &\equiv E(2) \cdot E(target) \pmod N \\<br>
+\Leftrightarrow E(target) &\equiv E(2target) \cdot E(2)^{-1} \pmod N
+\end{aligned}
+\end{equation}</p>
+<p>$E(2)^{-1}\ mod\ N$ can be easily computed using extended Euclid alg (we already have $E(2)$ and $N$).</p>
+<p>Done.</p>
+<style>.medium-zoom-image{background-color:#fff}</style>
+</div>
+<div class=article-tags>
+<a class="badge badge-light" href=/tag/ascis/>ascis</a>
+<a class="badge badge-light" href=/tag/ascis2020/>ascis2020</a>
+<a class="badge badge-light" href=/tag/ctf/>ctf</a>
+<a class="badge badge-light" href=/tag/crypto/>crypto</a>
+</div>
+<div class=share-box aria-hidden=true>
+<ul class=share>
+<li>
+<a href="https://twitter.com/intent/tweet?url=https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/&text=ASCIS%202020%20-%20Crypto%20writeups" target=_blank rel=noopener class=share-btn-twitter>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href="https://www.facebook.com/sharer.php?u=https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/&t=ASCIS%202020%20-%20Crypto%20writeups" target=_blank rel=noopener class=share-btn-facebook>
+<i class="fab fa-facebook"></i>
+</a>
+</li>
+<li>
+<a href="mailto:?subject=ASCIS%202020%20-%20Crypto%20writeups&body=https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/" target=_blank rel=noopener class=share-btn-email>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/shareArticle?url=https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/&title=ASCIS%202020%20-%20Crypto%20writeups" target=_blank rel=noopener class=share-btn-linkedin>
+<i class="fab fa-linkedin-in"></i>
+</a>
+</li>
+<li>
+<a href="whatsapp://send?text=ASCIS%202020%20-%20Crypto%20writeups%20https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/" target=_blank rel=noopener class=share-btn-whatsapp>
+<i class="fab fa-whatsapp"></i>
+</a>
+</li>
+<li>
+<a href="https://service.weibo.com/share/share.php?url=https://lamnhh.github.io/post/2021-01-09-ascis2020-crypto/&title=ASCIS%202020%20-%20Crypto%20writeups" target=_blank rel=noopener class=share-btn-weibo>
+<i class="fab fa-weibo"></i>
+</a>
+</li>
+</ul>
+</div>
+<div class="media author-card content-widget-hr">
+<a href=https://lamnhh.github.io/><img class="avatar mr-3 avatar-circle" src=/author/lam-nguyen/avatar_hu029c1a77317dc225afd33de6ecec3652_13092_270x270_fill_q75_lanczos_center.jpg alt="Lam Nguyen"></a>
+<div class=media-body>
+<h5 class=card-title><a href=https://lamnhh.github.io/>Lam Nguyen</a></h5>
+<h6 class=card-subtitle>Average CTF enjoyer (crypto/web)</h6>
+<p class=card-text>I play CTF under the username <a href="https://www.youtube.com/watch?v=wwhUGjnpRNw"><strong>mugi</strong></a></p>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=/about/#contact>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/lamnhh target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/lamnhh target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div class=article-widget>
+<div class=post-nav>
+<div class=post-nav-item>
+<div class=meta-nav>Next</div>
+<a href=/post/2021-02-22-jwt-rs256-recover-public-key/ rel=next>Recover public keys from JWTs signed using RS256</a>
+</div>
+</div>
+</div>
+<div class="article-widget content-widget-hr">
+<h3>Related</h3>
+<ul>
+<li><a href=/post/2021-09-20-acsc2021/>ACSC 2021 writeups</a></li>
+<li><a href=/post/2021-02-22-jwt-rs256-recover-public-key/>Recover public keys from JWTs signed using RS256</a></li>
+</ul>
+</div>
+</div>
+</article>
+</div>
+<div class=page-footer>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target=_blank rel=noopener>Wowchemy</a> — the free, <a href=https://github.com/wowchemy/wowchemy-hugo-modules target=_blank rel=noopener>open source</a> website builder that empowers creators.
+</p>
+</footer>
+</div>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Cite</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copy
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+<script src=/js/vendor-bundle.min.b73dfaac3b6499dc997741748a7c3fe2.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/r.min.js crossorigin=anonymous></script>
+<script id=search-hit-fuse-template type=text/x-template>
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script src=/en/js/wowchemy.min.d68ecd57c0ec1f1f61d65fd568f1c3a0.js></script>
+</body>
+</html>

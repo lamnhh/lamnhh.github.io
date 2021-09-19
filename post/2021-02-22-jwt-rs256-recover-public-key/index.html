@@ -1,0 +1,374 @@
+<!doctype html><html lang=en-us>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Wowchemy 5.3.0 for Hugo">
+<meta name=author content="Lam Nguyen">
+<meta name=description content="Scenario A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key.">
+<link rel=alternate hreflang=en-us href=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/>
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<meta name=theme-color content="#2962ff">
+<script src=/js/mathjax-config.js></script>
+<link rel=stylesheet href=/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/monokai-sublime.min.css crossorigin=anonymous title=hl-light media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/monokai-sublime.min.css crossorigin=anonymous title=hl-dark media=print onload="this.media='all'" disabled>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script>
+<link rel=preload as=style href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Mono&family=Roboto:wght@400;700&display=swap">
+<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" media=print onload="this.media='all'">
+<link rel=stylesheet href=/css/wowchemy.d837572e9d2d5c4d185f6f8e9fbae335.css>
+<link rel=manifest href=/manifest.webmanifest>
+<link rel=icon type=image/png href=/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_180x180_fill_lanczos_center_3.png>
+<link rel=canonical href=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/>
+<meta property="twitter:card" content="summary">
+<meta property="twitter:site" content="@wowchemy">
+<meta property="twitter:creator" content="@wowchemy">
+<meta property="og:site_name" content="Lam Nguyen's blog">
+<meta property="og:url" content="https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/">
+<meta property="og:title" content="Recover public keys from JWTs signed using RS256 | Lam Nguyen's blog">
+<meta property="og:description" content="Scenario A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key."><meta property="og:image" content="https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png">
+<meta property="twitter:image" content="https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="en-us">
+<meta property="article:published_time" content="2021-02-22T00:00:00+00:00">
+<meta property="article:modified_time" content="2021-02-22T00:00:00+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/"},"headline":"Recover public keys from JWTs signed using RS256","datePublished":"2021-02-22T00:00:00Z","dateModified":"2021-02-22T00:00:00Z","author":{"@type":"Person","name":"Lam Nguyen"},"publisher":{"@type":"Organization","name":"Lam Nguyen's blog","logo":{"@type":"ImageObject","url":"https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_192x192_fill_lanczos_center_3.png"}},"description":"Scenario A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key."}</script>
+<title>Recover public keys from JWTs signed using RS256 | Lam Nguyen's blog</title>
+</head>
+<body id=top data-spy=scroll data-offset=70 data-target=#TableOfContents class=page-wrapper data-wc-page-id=ec0159ed10e5cbc987a964fa80d4ae87>
+<script src=/js/wowchemy-init.min.8988fb2a4bba758785868cfcb5244555.js></script>
+<aside class=search-modal id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Search</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=# aria-label=Close><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search class=form-control aria-label=Search...>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<div class=page-header>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container-xl>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar-content aria-expanded=false aria-label="Toggle navigation">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-collapse main-menu-item collapse justify-content-center" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class=nav-link href=/><span>Home</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/about/><span>About</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+<li class=nav-item>
+<a class="nav-link js-search" href=# aria-label=Search><i class="fas fa-search" aria-hidden=true></i></a>
+</li>
+<li class="nav-item dropdown theme-dropdown">
+<a href=# class=nav-link data-toggle=dropdown aria-haspopup=true aria-label="Display preferences">
+<i class="fas fa-moon" aria-hidden=true></i>
+</a>
+<div class=dropdown-menu>
+<a href=# class="dropdown-item js-set-theme-light">
+<span>Light</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-dark">
+<span>Dark</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-auto">
+<span>Automatic</span>
+</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+</div>
+<div class=page-body>
+<article class=article>
+<div class="article-container pt-3">
+<h1>Recover public keys from JWTs signed using RS256</h1>
+<div class=article-metadata>
+<span class=article-date>
+Feb 22, 2021
+</span>
+<span class=middot-divider></span>
+<span class=article-reading-time>
+3 min read
+</span>
+</div>
+</div>
+<div class=article-container>
+<div class=article-style>
+<h1 id=scenario>Scenario</h1>
+<p>A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key.</p>
+<h1 id=how-jwt-works>How JWT works</h1>
+<p>Take a look at a sample JWT:</p>
+<pre><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdGF0dXMiOiJicm9uemUiLCJmZnAiOiJDQTEyMzQxMjM0In0.jv953fHSWqvR7SY8l3g2ku_BRAXqIvKOIq_lAjPXWXgUeIml6myJeRmqoSkDZ3-YpyyQ2hQxTuBip8igyhOHz0dc6A08Psip1KuqVjnilywN1JcH0euXGVQeeI-FwdeIArPwfoDUFXXKz8sh3EO9gK6dAwmWGLAV4wMF50fVjb7WuHEiL6w9WOeKfBneV4_3skDm8ljXoGGGyP7YkL6ez-fwacIe7_m-4MuQdfZfO1t-g2Vjr-yaImUHrZyW9Q8cAM3eJZ7m0UCnb8pG5yd8rU5vcXovKrbX6ZIYwaw4-IvFtJdU6h2jXwm2uKjRnhfYezi_iKARFO2Mv3vJmkX-Kg
+</code></pre>
+<p>It consists of 3 parts:</p>
+<p>Header:</p>
+<pre><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9
+</code></pre>
+<p>Payload:</p>
+<pre><code>eyJzdGF0dXMiOiJicm9uemUiLCJmZnAiOiJDQTEyMzQxMjM0In0
+</code></pre>
+<p>Signature:</p>
+<pre><code>jv953fHSWqvR7SY8l3g2ku_BRAXqIvKOIq_lAjPXWXgUeIml6myJeRmqoSkDZ3-YpyyQ2hQxTuBip8igyhOHz0dc6A08Psip1KuqVjnilywN1JcH0euXGVQeeI-FwdeIArPwfoDUFXXKz8sh3EO9gK6dAwmWGLAV4wMF50fVjb7WuHEiL6w9WOeKfBneV4_3skDm8ljXoGGGyP7YkL6ez-fwacIe7_m-4MuQdfZfO1t-g2Vjr-yaImUHrZyW9Q8cAM3eJZ7m0UCnb8pG5yd8rU5vcXovKrbX6ZIYwaw4-IvFtJdU6h2jXwm2uKjRnhfYezi_iKARFO2Mv3vJmkX-Kg
+</code></pre>
+<p>Each of these part is base64-ed. The signature is computed on <code>Header + "." + Payload</code>. The signing algorithm is specified in the raw header (in the sample above, it&rsquo;s RS256 - RSA with SHA256).</p>
+<h1 id=how-rs256-works>How RS256 works</h1>
+<p>RS256 - RSA with SHA256 does the following:</p>
+<ul>
+<li>Encode the message using EMSA-PKCS1-v1_5 (<a href=https://tools.ietf.org/html/rfc3447#section-9.2 target=_blank rel=noopener>RFC3447, section9.2</a>) with SHA256 as the hash function</li>
+<li>Perform textbook RSA signing on the encoded message</li>
+</ul>
+<h2 id=more-detail-on-the-rsa-part>More detail on the RSA part</h2>
+<p>Given the key $(N, e, d)$, the signature for message $m$ is computed as:</p>
+<p>$$s = m^d \pmod{N}$$</p>
+<p>To verify the signature, check if:</p>
+<p>$$
+\begin{equation}
+s^e \equiv m^{de} \equiv m \pmod{N}
+\label{eq:sample}
+\tag{*}
+\end{equation}
+$$</p>
+<h1 id=the-attack>The attack</h1>
+<p>From $(*)$, we can see that:</p>
+<p>$$s^e - m \equiv 0 \pmod{N}$$</p>
+<p>Given a lot of $(message, signature)$ pairs $(m_1, s_1), (m_2, s_2), &mldr;, (m_k, s_k)$, with high chance, we will get $N$ when we compute:</p>
+<p>$$GCD(s_1^e - m_1, s_2^e - m_2, &mldr;, s_k^e - m_k)$$</p>
+<h2 id=_where-does-e-come-from_><strong><em>Where does e come from?</em></strong></h2>
+<p>$e$ is usually in the form $2^{2^k} + 1$ with small $k$. We can bruteforce $e$.</p>
+<h2 id=_when-can-this-attack-be-fatal_><strong><em>When can this attack be fatal?</em></strong></h2>
+<p>When the server uses a JWT library that is vulnerable to key confusion (can use RSA key to decode HS256 tokens), for example, CVE-2016-10555 or CVE-2017-11424.</p>
+<p>In those cases, the attacker can modify the <code>alg</code> field to HS256 in the header, change the payload however they want, then sign it with the public key with HS256 algorithm. The server will decode the token using the public key, thus giving the attacker authentication.</p>
+<h2 id=_notes-about-implementation_><strong><em>Notes about implementation</em></strong></h2>
+<p>JWT keys are usually large (at least 2048 bit long). Computing $s^e$ can be very slow. For Python, use <code>mpz</code> from <code>gmpy2</code> to speed up things.</p>
+<p>Sample implementation (writeup for the Cr0wnAir challenge (the crypto part) from <a href=https://ctftime.org/event/1246 target=_blank rel=noopener>UnionCTF 2021</a>):</p>
+<pre><code class=language-python>from Crypto.Signature import PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA256
+from Crypto.Util.number import bytes_to_long, long_to_bytes
+from base64 import b64decode, urlsafe_b64decode
+from gmpy2 import gcd, mpz
+
+
+target_bit_length = 2048
+jwt_list = [
+    &quot;eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdGF0dXMiOiJicm9uemUiLCJmZnAiOiJDQTEyMzQxMjM0In0.jv953fHSWqvR7SY8l3g2ku_BRAXqIvKOIq_lAjPXWXgUeIml6myJeRmqoSkDZ3-YpyyQ2hQxTuBip8igyhOHz0dc6A08Psip1KuqVjnilywN1JcH0euXGVQeeI-FwdeIArPwfoDUFXXKz8sh3EO9gK6dAwmWGLAV4wMF50fVjb7WuHEiL6w9WOeKfBneV4_3skDm8ljXoGGGyP7YkL6ez-fwacIe7_m-4MuQdfZfO1t-g2Vjr-yaImUHrZyW9Q8cAM3eJZ7m0UCnb8pG5yd8rU5vcXovKrbX6ZIYwaw4-IvFtJdU6h2jXwm2uKjRnhfYezi_iKARFO2Mv3vJmkX-Kg&quot;,
+    &quot;eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdGF0dXMiOiJicm9uemUiLCJmZnAiOiJDQTEyMzQxMjM1In0.vtp96NW_PxO-_GW2e1u0xu4FTMYjYgwfe2wYKuksUGE_lM1ZeiyitDiUMXaQ3s5T3pD9ALHcqpsBY-5z1DbxVgPMvrqaExnw0merTDm17ku3b0ys5-dJOybb0meI7eu4i-Qykh0X_XHyOlxT6H-ZyxCcKov9sbnJVk3fbZY2lzjKuYZAIYQzXd5J65GooA7vkR2cWeK6rypHFyDPtuFaPLOhE6cLbC9VVyD4oxu0bvkpW6lRuiQni-S4uMkH2y7OUA16nNNVVwixUGVPwzGW8oS61lXiA3OHp1o336cyKJ9B4_ae1FeClPgUAnH_CWQIoZzco2Jb3mnHFq7lVgBnug&quot;,
+]
+
+
+def b64urldecode(b64: str) -&gt; str:
+    return urlsafe_b64decode(b64+(&quot;=&quot; * (len(b64) % 4)))
+
+
+def parse(jwt: str) -&gt; (bytes, bytes):
+    tokens = jwt.split(&quot;.&quot;)
+    return &quot;.&quot;.join(tokens[0:2]), b64urldecode(tokens[2])
+
+
+def get_rsa_mc(jwt: str) -&gt; int:
+    inp, sig = parse(jwt)
+    h = SHA256.new(inp.encode())
+    m = bytes_to_long(
+        PKCS1_v1_5.pkcs1_15._EMSA_PKCS1_V1_5_ENCODE(h, target_bit_length // 8)
+    )
+    c = bytes_to_long(sig)
+    return mpz(m), mpz(c)
+
+
+def get_pubkey(n: int, e: int) -&gt; str:
+    k = RSA.construct([n, e])
+    return k.export_key(&quot;PEM&quot;)
+
+
+ms = []
+cs = []
+for jwt in jwt_list:
+    m, c = get_rsa_mc(jwt)
+    ms.append(m)
+    cs.append(c)
+
+assert len(ms) &gt; 0 and len(cs) == len(ms)
+
+e = 65537
+n = pow(cs[0], e) - ms[0]
+for i in range(1, len(ms)):
+    m = ms[i]
+    c = cs[i]
+    n = gcd(n, pow(c, e) - m)
+
+for i in range(2, 1000):
+    while n % i == 0:
+        n //= i
+n = int(n)
+
+print(n)
+print(get_pubkey(n, e))
+</code></pre>
+<h2 id=_lessons_><strong><em>Lessons</em></strong></h2>
+<ul>
+<li>Do not rely on public keys for security purposes.</li>
+<li>Be careful when using JWT. Or even better, don&rsquo;t use them.</li>
+</ul>
+<h1 id=references>References</h1>
+<ul>
+<li><a href=https://blog.silentsignal.eu/2021/02/08/abusing-jwt-public-keys-without-the-public-key/ target=_blank rel=noopener>Abusing JWT public keys without the public key</a></li>
+</ul>
+</div>
+<div class=article-tags>
+<a class="badge badge-light" href=/tag/ctf/>ctf</a>
+<a class="badge badge-light" href=/tag/crypto/>crypto</a>
+</div>
+<div class=share-box aria-hidden=true>
+<ul class=share>
+<li>
+<a href="https://twitter.com/intent/tweet?url=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/&text=Recover%20public%20keys%20from%20JWTs%20signed%20using%20RS256" target=_blank rel=noopener class=share-btn-twitter>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href="https://www.facebook.com/sharer.php?u=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/&t=Recover%20public%20keys%20from%20JWTs%20signed%20using%20RS256" target=_blank rel=noopener class=share-btn-facebook>
+<i class="fab fa-facebook"></i>
+</a>
+</li>
+<li>
+<a href="mailto:?subject=Recover%20public%20keys%20from%20JWTs%20signed%20using%20RS256&body=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/" target=_blank rel=noopener class=share-btn-email>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/shareArticle?url=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/&title=Recover%20public%20keys%20from%20JWTs%20signed%20using%20RS256" target=_blank rel=noopener class=share-btn-linkedin>
+<i class="fab fa-linkedin-in"></i>
+</a>
+</li>
+<li>
+<a href="whatsapp://send?text=Recover%20public%20keys%20from%20JWTs%20signed%20using%20RS256%20https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/" target=_blank rel=noopener class=share-btn-whatsapp>
+<i class="fab fa-whatsapp"></i>
+</a>
+</li>
+<li>
+<a href="https://service.weibo.com/share/share.php?url=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/&title=Recover%20public%20keys%20from%20JWTs%20signed%20using%20RS256" target=_blank rel=noopener class=share-btn-weibo>
+<i class="fab fa-weibo"></i>
+</a>
+</li>
+</ul>
+</div>
+<div class="media author-card content-widget-hr">
+<a href=https://lamnhh.github.io/><img class="avatar mr-3 avatar-circle" src=/author/lam-nguyen/avatar_hu029c1a77317dc225afd33de6ecec3652_13092_270x270_fill_q75_lanczos_center.jpg alt="Lam Nguyen"></a>
+<div class=media-body>
+<h5 class=card-title><a href=https://lamnhh.github.io/>Lam Nguyen</a></h5>
+<h6 class=card-subtitle>Average CTF enjoyer (crypto/web)</h6>
+<p class=card-text>I play CTF under the username <a href="https://www.youtube.com/watch?v=wwhUGjnpRNw"><strong>mugi</strong></a></p>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=/about/#contact>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/lamnhh target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/lamnhh target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div class=article-widget>
+<div class=post-nav>
+<div class=post-nav-item>
+<div class=meta-nav>Next</div>
+<a href=/post/2021-09-20-acsc2021/ rel=next>ACSC 2021 writeups</a>
+</div>
+<div class=post-nav-item>
+<div class=meta-nav>Previous</div>
+<a href=/post/2021-01-09-ascis2020-crypto/ rel=prev>ASCIS 2020 - Crypto writeups</a>
+</div>
+</div>
+</div>
+<div class="article-widget content-widget-hr">
+<h3>Related</h3>
+<ul>
+<li><a href=/post/2021-09-20-acsc2021/>ACSC 2021 writeups</a></li>
+<li><a href=/post/2021-01-09-ascis2020-crypto/>ASCIS 2020 - Crypto writeups</a></li>
+</ul>
+</div>
+</div>
+</article>
+</div>
+<div class=page-footer>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target=_blank rel=noopener>Wowchemy</a> — the free, <a href=https://github.com/wowchemy/wowchemy-hugo-modules target=_blank rel=noopener>open source</a> website builder that empowers creators.
+</p>
+</footer>
+</div>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Cite</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copy
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+<script src=/js/vendor-bundle.min.b73dfaac3b6499dc997741748a7c3fe2.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/r.min.js crossorigin=anonymous></script>
+<script id=search-hit-fuse-template type=text/x-template>
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script src=/en/js/wowchemy.min.d68ecd57c0ec1f1f61d65fd568f1c3a0.js></script>
+</body>
+</html>

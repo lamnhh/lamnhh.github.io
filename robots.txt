@@ -1,0 +1,3 @@
+User-agent: *
+
+Sitemap: https://lamnhh.github.io/sitemap.xml
