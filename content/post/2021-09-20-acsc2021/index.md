@@ -2,7 +2,7 @@
 title: ACSC 2021 writeups
 date: 2021-09-19
 math: true
-tags: [ctf, crypto]
+tags: [ctf, acsc, acsc2021]
 ---
 
 I competed in ACSC 2021 and got #16 (#2 VN). I ~~overkilled~~ did web and crypto, and here are the writeups.
