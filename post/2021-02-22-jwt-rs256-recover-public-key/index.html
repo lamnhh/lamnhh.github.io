@@ -18,8 +18,8 @@
 <link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" media=print onload="this.media='all'">
 <link rel=stylesheet href=/css/wowchemy.d837572e9d2d5c4d185f6f8e9fbae335.css>
 <link rel=manifest href=/manifest.webmanifest>
-<link rel=icon type=image/png href=/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_32x32_fill_lanczos_center_3.png>
-<link rel=apple-touch-icon type=image/png href=/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_180x180_fill_lanczos_center_3.png>
+<link rel=icon type=image/png href=/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_180x180_fill_lanczos_center_3.png>
 <link rel=canonical href=https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/>
 <meta property="twitter:card" content="summary">
 <meta property="twitter:site" content="@wowchemy">
@@ -27,11 +27,11 @@
 <meta property="og:site_name" content="Lam Nguyen's blog">
 <meta property="og:url" content="https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/">
 <meta property="og:title" content="Recover public keys from JWTs signed using RS256 | Lam Nguyen's blog">
-<meta property="og:description" content="Scenario A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key."><meta property="og:image" content="https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png">
-<meta property="twitter:image" content="https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="en-us">
+<meta property="og:description" content="Scenario A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key."><meta property="og:image" content="https://lamnhh.github.io/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_512x512_fill_lanczos_center_3.png">
+<meta property="twitter:image" content="https://lamnhh.github.io/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="en-us">
 <meta property="article:published_time" content="2021-02-22T00:00:00+00:00">
 <meta property="article:modified_time" content="2021-02-22T00:00:00+00:00">
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/"},"headline":"Recover public keys from JWTs signed using RS256","datePublished":"2021-02-22T00:00:00Z","dateModified":"2021-02-22T00:00:00Z","author":{"@type":"Person","name":"Lam Nguyen"},"publisher":{"@type":"Organization","name":"Lam Nguyen's blog","logo":{"@type":"ImageObject","url":"https://lamnhh.github.io/media/icon_hua2ec155b4296a9c9791d015323e16eb5_11927_192x192_fill_lanczos_center_3.png"}},"description":"Scenario A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key."}</script>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://lamnhh.github.io/post/2021-02-22-jwt-rs256-recover-public-key/"},"headline":"Recover public keys from JWTs signed using RS256","datePublished":"2021-02-22T00:00:00Z","dateModified":"2021-02-22T00:00:00Z","author":{"@type":"Person","name":"Lam Nguyen"},"publisher":{"@type":"Organization","name":"Lam Nguyen's blog","logo":{"@type":"ImageObject","url":"https://lamnhh.github.io/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_192x192_fill_lanczos_center_3.png"}},"description":"Scenario A web server uses RS256 algorithm for their JWT signing. Both public key and private key are unknown. The adversary can query the server to sign a chosen message. The goal is to recover the public key."}</script>
 <title>Recover public keys from JWTs signed using RS256 | Lam Nguyen's blog</title>
 </head>
 <body id=top data-spy=scroll data-offset=70 data-target=#TableOfContents class=page-wrapper data-wc-page-id=ec0159ed10e5cbc987a964fa80d4ae87>
