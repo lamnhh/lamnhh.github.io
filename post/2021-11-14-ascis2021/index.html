@@ -1,0 +1,427 @@
+<!doctype html><html lang=en-us>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Wowchemy 5.3.0 for Hugo">
+<meta name=author content="Lam Nguyen">
+<meta name=description content="You can download some of the binaries here: https://drive.google.com/drive/folders/1q9rx2gbuZjSFzXb-_HFdaOV26zPakOAP?usp=sharing
+The link contains Crypto01 (buggy), Web02 (chongxun), Jeopardy Crypto01 (noise). My solutions to these challenges are also in there.
+Table of Contents   Crypto">
+<link rel=alternate hreflang=en-us href=https://lamnhh.github.io/post/2021-11-14-ascis2021/>
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<meta name=theme-color content="#2962ff">
+<script src=/js/mathjax-config.js></script>
+<link rel=stylesheet href=/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/monokai-sublime.min.css crossorigin=anonymous title=hl-light media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/monokai-sublime.min.css crossorigin=anonymous title=hl-dark media=print onload="this.media='all'" disabled>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script>
+<link rel=preload as=style href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Mono&family=Roboto:wght@400;700&display=swap">
+<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" media=print onload="this.media='all'">
+<link rel=stylesheet href=/css/wowchemy.d837572e9d2d5c4d185f6f8e9fbae335.css>
+<link rel=manifest href=/manifest.webmanifest>
+<link rel=icon type=image/png href=/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_180x180_fill_lanczos_center_3.png>
+<link rel=canonical href=https://lamnhh.github.io/post/2021-11-14-ascis2021/>
+<meta property="twitter:card" content="summary">
+<meta property="twitter:site" content="@wowchemy">
+<meta property="twitter:creator" content="@wowchemy">
+<meta property="og:site_name" content="Lam Nguyen's blog">
+<meta property="og:url" content="https://lamnhh.github.io/post/2021-11-14-ascis2021/">
+<meta property="og:title" content="ASCIS 2021 Finals writeups (WIP) | Lam Nguyen's blog">
+<meta property="og:description" content="You can download some of the binaries here: https://drive.google.com/drive/folders/1q9rx2gbuZjSFzXb-_HFdaOV26zPakOAP?usp=sharing
+The link contains Crypto01 (buggy), Web02 (chongxun), Jeopardy Crypto01 (noise). My solutions to these challenges are also in there.
+Table of Contents   Crypto"><meta property="og:image" content="https://lamnhh.github.io/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_512x512_fill_lanczos_center_3.png">
+<meta property="twitter:image" content="https://lamnhh.github.io/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="en-us">
+<meta property="article:published_time" content="2021-11-14T00:00:00+00:00">
+<meta property="article:modified_time" content="2021-11-14T00:00:00+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://lamnhh.github.io/post/2021-11-14-ascis2021/"},"headline":"ASCIS 2021 Finals writeups (WIP)","datePublished":"2021-11-14T00:00:00Z","dateModified":"2021-11-14T00:00:00Z","author":{"@type":"Person","name":"Lam Nguyen"},"publisher":{"@type":"Organization","name":"Lam Nguyen's blog","logo":{"@type":"ImageObject","url":"https://lamnhh.github.io/media/icon_hu8b9791073e3b63e9cb38d6dd95fed664_126888_192x192_fill_lanczos_center_3.png"}},"description":"You can download some of the binaries here: https://drive.google.com/drive/folders/1q9rx2gbuZjSFzXb-_HFdaOV26zPakOAP?usp=sharing\nThe link contains Crypto01 (buggy), Web02 (chongxun), Jeopardy Crypto01 (noise). My solutions to these challenges are also in there.\nTable of Contents   Crypto"}</script>
+<title>ASCIS 2021 Finals writeups (WIP) | Lam Nguyen's blog</title>
+</head>
+<body id=top data-spy=scroll data-offset=70 data-target=#TableOfContents class=page-wrapper data-wc-page-id=58ff56c85a646fbe391bc7b771b44cba>
+<script src=/js/wowchemy-init.min.8988fb2a4bba758785868cfcb5244555.js></script>
+<aside class=search-modal id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Search</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=# aria-label=Close><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search class=form-control aria-label=Search...>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<div class=page-header>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container-xl>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar-content aria-expanded=false aria-label="Toggle navigation">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-collapse main-menu-item collapse justify-content-center" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class=nav-link href=/><span>Home</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/about/><span>About</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+<li class=nav-item>
+<a class="nav-link js-search" href=# aria-label=Search><i class="fas fa-search" aria-hidden=true></i></a>
+</li>
+<li class="nav-item dropdown theme-dropdown">
+<a href=# class=nav-link data-toggle=dropdown aria-haspopup=true aria-label="Display preferences">
+<i class="fas fa-moon" aria-hidden=true></i>
+</a>
+<div class=dropdown-menu>
+<a href=# class="dropdown-item js-set-theme-light">
+<span>Light</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-dark">
+<span>Dark</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-auto">
+<span>Automatic</span>
+</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+</div>
+<div class=page-body>
+<article class=article>
+<div class="article-container pt-3">
+<h1>ASCIS 2021 Finals writeups (WIP)</h1>
+<p class=page-subtitle>Writeups for crypto and web challenges</p>
+<div class=article-metadata>
+<span class=article-date>
+Nov 14, 2021
+</span>
+<span class=middot-divider></span>
+<span class=article-reading-time>
+6 min read
+</span>
+</div>
+</div>
+<div class=article-container>
+<div class=article-style>
+<p>You can download some of the binaries here: <a href="https://drive.google.com/drive/folders/1q9rx2gbuZjSFzXb-_HFdaOV26zPakOAP?usp=sharing" target=_blank rel=noopener>https://drive.google.com/drive/folders/1q9rx2gbuZjSFzXb-_HFdaOV26zPakOAP?usp=sharing</a></p>
+<p>The link contains Crypto01 (buggy), Web02 (chongxun), Jeopardy Crypto01 (noise). My solutions to these challenges are also in there.</p>
+<h2 id=table-of-contents>Table of Contents</h2>
+<ol>
+<li>
+<p><a href=#crypto>Crypto</a></p>
+<p>1.1. <a href=#jeopardy-crypto01>Jeopardy Crypto01 (noise)</a></p>
+<p>1.2. <a href=#attackdefence-crypto01>Attack/Defence Crypto01</a></p>
+</li>
+<li>
+<p><a href=#web>Web</a></p>
+<p>2.1. <a href=#attackdefence-web02>Attack/Defence Web02</a></p>
+</li>
+</ol>
+<h1 id=crypto>Crypto</h1>
+<h2 id=jeopardy-crypto01>Jeopardy Crypto01</h2>
+<pre><code class=language-python>from random import randint, getrandbits
+from Crypto.Util.number import getPrime  # pycryptodome
+
+
+class RSA:
+    def __init__(self):
+        self.e = 65537
+        self.p = getPrime(512)
+        self.q = getPrime(512)
+        self.d = pow(self.e, -1, (self.p - 1) * (self.q - 1))
+
+    def encrypt(self, m: int) -&gt; int:
+        return pow(m, self.e, self.p * self.q)
+
+    def noisily_decrypt(self, c: int, d: int = 2021):
+        noise = randint(1, d**2-1)
+        delta_p = noise % d
+        delta_q = noise // d
+        return pow(c, self.d, (self.p + delta_p) * (self.q + delta_q))
+
+
+def main():
+    cipher = RSA()
+
+    # what is this?
+    print(cipher.encrypt(-1))
+
+    # you need to guess this to get flag
+    x = getrandbits(777)
+    print(cipher.encrypt(x))
+
+    # will 2021 oracle calls be enough?
+    for _ in range(2021):
+        guessed_x = int(input())
+        if guessed_x == x:
+            from secret import FLAG
+            print(FLAG)
+            return
+        else:
+            print(cipher.noisily_decrypt(abs(guessed_x)))
+
+
+if __name__ == '__main__':
+    main()
+</code></pre>
+<p>First off, it&rsquo;s obvious that $N = \text{cipher.encrypt}(-1) + 1$.</p>
+<p>Suppose that we got lucky and got a $noise$ such that $noise \equiv 0 \pmod{d}$, which means $\Delta_p = 0$. Let the noisily-decrypted result be $x'$. Also, suppose that $d$ is odd, if it isn&rsquo;t, create a new session until it is odd.</p>
+<p>In this case, we have:</p>
+<p>\begin{equation}
+\begin{aligned}
+(N - 1)^d &\equiv x' \pmod{p(q + \Delta_q)} \\
+\Leftrightarrow (N - 1)^d + 1 &\equiv x' + 1 \pmod{p(q + \Delta_q)} \\
+\Leftrightarrow (N - 1)^d + 1 &\equiv x' + 1 \pmod{p} \\
+\Leftrightarrow (-1)^d + 1 &\equiv x' + 1 \pmod{p} \\
+\Leftrightarrow 0 &\equiv x' + 1 \pmod{p}
+\end{aligned}
+\end{equation}</p>
+<p>With very high probablity, $GCD(x' + 1, N)$ will be equal to $p$.</p>
+<p>Now, how to ensure that $noise \equiv 0 \pmod{d}$? Simple, just connect a few times until it is. $(2020/2021)^{2020} \approx 0.37$, very small.</p>
+<p>Solution:</p>
+<pre><code class=language-python>from pwn import process
+from Crypto.Util.number import GCD, inverse, isPrime
+
+with process([&quot;python3&quot;, &quot;noise.py&quot;]) as tube:
+    N = int(tube.recvline().decode()) + 1
+    enc_x = int(tube.recvline().decode())
+
+    a = []
+    for _ in range(2020):
+        tube.sendline(str(N - 1).encode())
+        enc = int(tube.recvline().decode())
+        a.append(enc)
+
+    for i in range(len(a)):
+        g = GCD(a[i] + 1, N)
+        if g &gt; 1:
+            p = g
+            q = N // p
+            assert isPrime(p)
+            assert isPrime(q)
+
+            phi = (p - 1) * (q - 1)
+            e = 65537
+            d = inverse(e, phi)
+            x = pow(enc_x, d, N)
+
+            tube.sendline(str(x).encode())
+            flag = tube.recvline().decode().strip()
+            print(&quot;Flag: &quot; + flag)
+            break
+</code></pre>
+<h2 id=attackdefence-crypto01>Attack/Defence Crypto01</h2>
+<pre><code class=language-python>data = sp.serialize({
+    b&quot;issuer&quot;: b&quot;vnsecurity&quot;,
+    b&quot;citizen_id&quot;: citizen_id,
+    b&quot;citizen_name&quot;: citizen_name,
+    b&quot;doses&quot;: (0).to_bytes(1, &quot;big&quot;)
+})
+</code></pre>
+<p>(<code>citizen_id</code> and <code>citizen_name</code> is from our input)</p>
+<p>The target is to submit a new data with at least 2 <code>doses</code>. It&rsquo;s also required to submit a MAC corresponding to the data. There are 5 types of MAC here.</p>
+<h3 id=aes256xormp>Aes256XorMP</h3>
+<p>The MAC is compute by dividing the data into blocks of size 16, encrypting each using AES-256 with the same secret key, then xor-ing all the result together. In case data length is not divisible by 16, pad the data with 0s.</p>
+<p>The solution is to use a <code>citizen_id/citizen_name</code> such that the last byte (the byte for <code>doses</code>) is at the beginning of a new block, and there exists another block in the form of <code>\2 + \0*15</code>. It&rsquo;s easy to see that if you swap the two block, the resulting MAC is the same, while <code>doses</code> becomes 2.</p>
+<h3 id=crc32mp>Crc32MP</h3>
+<p>The MAC is compute by taking <code>CRC32(secret + data)</code> where <code>secret</code> is a random 32-byte pad.</p>
+<p>CRC32 has a property that <code>CRC32(x ^ y ^ z) = CRC32(x) ^ CRC32(y) ^ CRC32(z)</code> if <code>x, y, z</code> are of a same length. (<a href=https://en.wikipedia.org/wiki/Cyclic_redundancy_check#Data_integrity%29 target=_blank rel=noopener>https://en.wikipedia.org/wiki/Cyclic_redundancy_check#Data_integrity)</a>. With this, we easy craft new data like this:</p>
+<p>Consider <code>new_data</code> being <code>data</code> with the last byte (for <code>doses</code>) replaced with 2, in other words, <code>new_data = data ^ 0 ^ 2</code>, then.</p>
+<p><code>CRC32(secret + new_data) = CRC32(secret + data) ^ CRC32(0) ^ CRC32(2)</code>.</p>
+<h3 id=dsa>DSA</h3>
+<p>Here is how the signature for a message $m$ is generated:</p>
+<pre><code class=language-python>k = int(time.time())
+r = pow(g, k, p) % q
+s = pow(k, -1, q) * (m + self.x * r) % q
+</code></pre>
+<p>We have the timestamp at the beginning of the session. That timestamp and $k$ should not differ by a lot, which means we can bruteforce $k$.</p>
+<p>When we have $k$, generating a signature for $m'$ is obvious:</p>
+<ul>
+<li>$r$ is the same.</li>
+<li>$s' = s + (k^{-1} \mod q) * (m' - m)$</li>
+</ul>
+<h3 id=rsa>RSA</h3>
+<p>We are given everything ($N, e, d$), so we can just compute everything ourselves.</p>
+<h3 id=sha>SHA</h3>
+<p>The MAC is computed as <code>SHA256(secret + data)</code>. It&rsquo;s obvious this is length-extension attack. For Python, this github repo works fine: <a href=https://github.com/stephenbradshaw/hlextend target=_blank rel=noopener>https://github.com/stephenbradshaw/hlextend</a>. To get the payload in bytes form, wrap the result in a <code>b""</code>, then <code>eval()</code> it.</p>
+<h1 id=web>Web</h1>
+<h2 id=attackdefence-web02>Attack/Defence Web02</h2>
+<p>This one is quite straightforward. The one pain that I suffered is to implement curl using <code>file_get_contents</code>. Why not just allow <code>php-curl</code>? :(</p>
+<p>We have:</p>
+<ul>
+<li>A Gitlab instance. This is where the flag is. The flag can only be read using a binary <code>/readflag</code>, so the target is to get RCE on this Gitlab instance.</li>
+<li>A PHP website. This is the only thing exposed to us.</li>
+</ul>
+<p>The Gitlab version is 13.10.2. I remember reading on Twitter about an RCE on Gitlab recently using some sort of image thingies. A quick search returns this: CVE-2021-22205 (<a href=https://pentest-tools.com/blog/detect-gitlab-cve-2021-22205/%29 target=_blank rel=noopener>https://pentest-tools.com/blog/detect-gitlab-cve-2021-22205/)</a>.</p>
+<blockquote>
+<p>this security issue affects Gitlab CE versions starting 11.9 and up to 13.10.2</p>
+</blockquote>
+<p>Bingo! Now we need some way to be able to make HTTP requests to the Gitlab instance. Time to look at the PHP site.</p>
+<p>First thing first, the site check authentication just by taking the <code>user</code> cookie, strip the last 32 bytes, use the rest as username to search in database. If that username exists, we are authenticated. So the solution is to put <code>'chongxun' + 'a' * 32</code> in that cookie.</p>
+<p>The next thing noticable is the <code>/upload.php</code> route. This route allows us to upload any file that is not <code>.php</code>, <code>.pht</code>, or <code>.phar</code>. The extension check is very thorough, there is no chance to bypass it to upload a <code>.php</code> file. However, it turns out that there is another extension that can perform the same as <code>.php</code>: <code>.phtml</code>. We can now upload a shell to the PHP instance.</p>
+<p>I then wasted half an hour trying to get RCE using the uploaded shell, only to realize that <code>system, exec, etc</code> are disabled in <code>php.ini</code>. This means we need to do everything using pure, painful PHP. Also, <code>php-curl</code> is not installed, but we can use <code>file_get_contents</code> instead.</p>
+<p>The rest is just 4 hours of pain simulating the process of signing up, signing in, attaching file to new snippet, etc, using <code>file_get_contents</code>.</p>
+<p>There are a few things I was able to learned from this:</p>
+<ul>
+<li>PHP is fucking stupid.</li>
+<li>PHP is evil.</li>
+</ul>
+<p>For real, why is <code>'\n'</code> escaped but <code>"\n"</code> isn&rsquo;t?. And why is the syntax for POST-ing with <code>file_get_contents</code> so complicated? Why does it not take an array as headers? I had to pull up Wireshark to debug this fucking thing.</p>
+<p>Also, why is <code>file_get_contents</code> able to POST to begin with?.</p>
+<p>Okay, there is still the Java chal and one more crypto chal left. The crypto challenge feels very impossible, and Java just scares me in general.</p>
+<p>Finally, F to my uni&rsquo;s team. You did well.</p>
+</div>
+<div class=article-tags>
+<a class="badge badge-light" href=/tag/ascis/>ascis</a>
+<a class="badge badge-light" href=/tag/ascis2021/>ascis2021</a>
+<a class="badge badge-light" href=/tag/ctf/>ctf</a>
+<a class="badge badge-light" href=/tag/crypto/>crypto</a>
+<a class="badge badge-light" href=/tag/web/>web</a>
+</div>
+<div class=share-box aria-hidden=true>
+<ul class=share>
+<li>
+<a href="https://twitter.com/intent/tweet?url=https://lamnhh.github.io/post/2021-11-14-ascis2021/&text=ASCIS%202021%20Finals%20writeups%20%28WIP%29" target=_blank rel=noopener class=share-btn-twitter>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href="https://www.facebook.com/sharer.php?u=https://lamnhh.github.io/post/2021-11-14-ascis2021/&t=ASCIS%202021%20Finals%20writeups%20%28WIP%29" target=_blank rel=noopener class=share-btn-facebook>
+<i class="fab fa-facebook"></i>
+</a>
+</li>
+<li>
+<a href="mailto:?subject=ASCIS%202021%20Finals%20writeups%20%28WIP%29&body=https://lamnhh.github.io/post/2021-11-14-ascis2021/" target=_blank rel=noopener class=share-btn-email>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/shareArticle?url=https://lamnhh.github.io/post/2021-11-14-ascis2021/&title=ASCIS%202021%20Finals%20writeups%20%28WIP%29" target=_blank rel=noopener class=share-btn-linkedin>
+<i class="fab fa-linkedin-in"></i>
+</a>
+</li>
+<li>
+<a href="whatsapp://send?text=ASCIS%202021%20Finals%20writeups%20%28WIP%29%20https://lamnhh.github.io/post/2021-11-14-ascis2021/" target=_blank rel=noopener class=share-btn-whatsapp>
+<i class="fab fa-whatsapp"></i>
+</a>
+</li>
+<li>
+<a href="https://service.weibo.com/share/share.php?url=https://lamnhh.github.io/post/2021-11-14-ascis2021/&title=ASCIS%202021%20Finals%20writeups%20%28WIP%29" target=_blank rel=noopener class=share-btn-weibo>
+<i class="fab fa-weibo"></i>
+</a>
+</li>
+</ul>
+</div>
+<div class="media author-card content-widget-hr">
+<a href=https://lamnhh.github.io/><img class="avatar mr-3 avatar-circle" src=/author/lam-nguyen/avatar_hu029c1a77317dc225afd33de6ecec3652_13092_270x270_fill_q75_lanczos_center.jpg alt="Lam Nguyen"></a>
+<div class=media-body>
+<h5 class=card-title><a href=https://lamnhh.github.io/>Lam Nguyen</a></h5>
+<h6 class=card-subtitle>Average CTF enjoyer (crypto/web)</h6>
+<p class=card-text>I play CTF under the username <a href="https://www.youtube.com/watch?v=wwhUGjnpRNw"><strong>mugi</strong></a></p>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=/about/#contact>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/lamnhh target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/lamnhh target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div class=article-widget>
+<div class=post-nav>
+<div class=post-nav-item>
+<div class=meta-nav>Previous</div>
+<a href=/post/2021-09-20-acsc2021/ rel=prev>ACSC 2021 writeups</a>
+</div>
+</div>
+</div>
+<div class="article-widget content-widget-hr">
+<h3>Related</h3>
+<ul>
+<li><a href=/post/2021-01-09-ascis2020-crypto/>ASCIS 2020 - Crypto writeups</a></li>
+<li><a href=/post/2021-02-22-jwt-rs256-recover-public-key/>Recover public keys from JWTs signed using RS256</a></li>
+<li><a href=/post/2021-09-20-acsc2021/>ACSC 2021 writeups</a></li>
+</ul>
+</div>
+</div>
+</article>
+</div>
+<div class=page-footer>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target=_blank rel=noopener>Wowchemy</a> — the free, <a href=https://github.com/wowchemy/wowchemy-hugo-modules target=_blank rel=noopener>open source</a> website builder that empowers creators.
+</p>
+</footer>
+</div>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Cite</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copy
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+<script src=/js/vendor-bundle.min.b73dfaac3b6499dc997741748a7c3fe2.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/r.min.js crossorigin=anonymous></script>
+<script id=search-hit-fuse-template type=text/x-template>
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script src=/en/js/wowchemy.min.d68ecd57c0ec1f1f61d65fd568f1c3a0.js></script>
+</body>
+</html>

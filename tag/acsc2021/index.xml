@@ -157,10 +157,10 @@ print(ans)
 &lt;p>I did some simple transformations to create a univariate polynomial on $x$.&lt;/p>
 &lt;p>\begin{equation}
 \begin{aligned}
-x^2 &amp;amp;= y^3 + ay + b \\&lt;br>
-\Leftrightarrow x^2 - b &amp;amp;= y^3 + ay \\&lt;br>
-\Rightarrow (x^2 - b)^2 &amp;amp;= (y^3 + ay)^2 \\&lt;br>
-\Leftrightarrow (x^2 - b)^2 &amp;amp;= y^6 + a^2 y^2 + 2ay^4 \\&lt;br>
+x^2 &amp;amp;= y^3 + ay + b \\
+\Leftrightarrow x^2 - b &amp;amp;= y^3 + ay \\
+\Rightarrow (x^2 - b)^2 &amp;amp;= (y^3 + ay)^2 \\
+\Leftrightarrow (x^2 - b)^2 &amp;amp;= y^6 + a^2 y^2 + 2ay^4 \\
 \Leftrightarrow (x^2 - b)^2 &amp;amp;= (x^3 + ax + b)^3 + a^2 (x^3 + ax + b) + 2a(x^3 + ax + b)^2
 \end{aligned}
 \end{equation}&lt;/p>
